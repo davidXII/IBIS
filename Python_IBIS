@@ -1,0 +1,65 @@
+# ------------------------------------------------------------
+# Programme : Répartition des chambres entre personnel hôtelier
+# Auteur : (ton nom)
+# Langage : Python 3
+# Description :
+#   Ce programme répartit les chambres à nettoyer entre
+#   les femmes de ménage et les intérimaires, en respectant :
+#   - 14 chambres maximum par femme de ménage
+#   - 0,5 heure par chambre
+#   Les intérimaires font le reste.
+# ------------------------------------------------------------
+
+def room_distribution():
+    # --- Paramètres fixes ---
+    duree_chambre = 0.5   # en heures
+    max_chambres_femme = 14
+
+    # --- Saisie des données utilisateur ---
+    nb_chambres = int(input("Combien de chambres à nettoyer ? "))
+    nb_femmes = int(input("Combien de femmes de ménage ? "))
+    nb_interim = int(input("Combien d'intérimaires ? "))
+
+    # --- Calcul du nombre de chambres couvertes par les femmes de ménage ---
+    total_chambres_femmes = nb_femmes * max_chambres_femme
+
+    # --- Cas 1 : les femmes peuvent tout faire ---
+    if total_chambres_femmes >= nb_chambres:
+        chambres_par_femme = nb_chambres // nb_femmes
+        reste = nb_chambres % nb_femmes
+
+        print("\nRépartition :\n")
+        for i in range(nb_femmes):
+            nb = chambres_par_femme + (1 if i < reste else 0)
+            duree = nb * duree_chambre
+            print(f"Femme de ménage {i+1} : {nb} chambres ({duree:.1f} h)")
+
+        print("\nAucun intérimaire nécessaire.")
+
+    # --- Cas 2 : besoin d'intérimaires ---
+    else:
+        chambres_restantes = nb_chambres - total_chambres_femmes
+
+        if nb_interim == 0:
+            print("\n⚠️ Pas d'intérimaires disponibles, et les femmes ne peuvent pas tout faire !")
+            return
+
+        chambres_par_interim = chambres_restantes / nb_interim
+
+        print("\nRépartition :\n")
+
+        for i in range(nb_femmes):
+            duree = max_chambres_femme * duree_chambre
+            print(f"Femme de ménage {i+1} : {max_chambres_femme} chambres ({duree:.1f} h)")
+
+        print("\nIntérimaires :")
+        for i in range(nb_interim):
+            duree = chambres_par_interim * duree_chambre
+            print(f"Intérimaire {i+1} : {chambres_par_interim:.1f} chambres ({duree:.1f} h)")
+
+    print("\n✅ Répartition terminée.")
+
+
+# --- Lancer le programme ---
+if __name__ == "__main__":
+    room_distribution()
