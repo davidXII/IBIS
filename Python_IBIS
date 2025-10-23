@@ -1,65 +1,65 @@
-# ------------------------------------------------------------
-# Programme : Répartition des chambres entre personnel hôtelier
-# Auteur : (ton nom)
-# Langage : Python 3
-# Description :
-#   Ce programme répartit les chambres à nettoyer entre
-#   les femmes de ménage et les intérimaires, en respectant :
-#   - 14 chambres maximum par femme de ménage
-#   - 0,5 heure par chambre
-#   Les intérimaires font le reste.
-# ------------------------------------------------------------
+import tkinter as tk
+from tkinter import messagebox
 
-def room_distribution():
-    # --- Paramètres fixes ---
-    duree_chambre = 0.5   # en heures
-    max_chambres_femme = 14
+def calculer():
+    try:
+        nb_chambres = int(entry_chambres.get())
+        nb_femmes = int(entry_femmes.get())
+        nb_interim = int(entry_interim.get())
 
-    # --- Saisie des données utilisateur ---
-    nb_chambres = int(input("Combien de chambres à nettoyer ? "))
-    nb_femmes = int(input("Combien de femmes de ménage ? "))
-    nb_interim = int(input("Combien d'intérimaires ? "))
+        duree_chambre = 0.5
+        max_chambres_femme = 14
+        total_femmes = nb_femmes * max_chambres_femme
 
-    # --- Calcul du nombre de chambres couvertes par les femmes de ménage ---
-    total_chambres_femmes = nb_femmes * max_chambres_femme
+        resultat = ""
 
-    # --- Cas 1 : les femmes peuvent tout faire ---
-    if total_chambres_femmes >= nb_chambres:
-        chambres_par_femme = nb_chambres // nb_femmes
-        reste = nb_chambres % nb_femmes
+        if total_femmes >= nb_chambres:
+            chambres_par_femme = nb_chambres // nb_femmes
+            reste = nb_chambres % nb_femmes
+            for i in range(nb_femmes):
+                nb = chambres_par_femme + (1 if i < reste else 0)
+                resultat += f"Femme {i+1}: {nb} chambres ({nb * duree_chambre:.1f} h)\n"
+            resultat += "\nAucun intérimaire nécessaire."
+        else:
+            reste = nb_chambres - total_femmes
+            chambres_par_interim = reste / nb_interim
+            for i in range(nb_femmes):
+                resultat += f"Femme {i+1}: {max_chambres_femme} chambres (7.0 h)\n"
+            resultat += "\nIntérimaires:\n"
+            for i in range(nb_interim):
+                resultat += f"Intérimaire {i+1}: {chambres_par_interim:.1f} chambres ({chambres_par_interim * duree_chambre:.1f} h)\n"
 
-        print("\nRépartition :\n")
-        for i in range(nb_femmes):
-            nb = chambres_par_femme + (1 if i < reste else 0)
-            duree = nb * duree_chambre
-            print(f"Femme de ménage {i+1} : {nb} chambres ({duree:.1f} h)")
+        text_result.delete(1.0, tk.END)
+        text_result.insert(tk.END, resultat)
 
-        print("\nAucun intérimaire nécessaire.")
+    except ValueError:
+        messagebox.showerror("Erreur", "Veuillez entrer des nombres valides.")
 
-    # --- Cas 2 : besoin d'intérimaires ---
-    else:
-        chambres_restantes = nb_chambres - total_chambres_femmes
+# --- Fenêtre principale ---
+root = tk.Tk()
+root.title("Répartition des chambres")
+root.geometry("380x450")
 
-        if nb_interim == 0:
-            print("\n⚠️ Pas d'intérimaires disponibles, et les femmes ne peuvent pas tout faire !")
-            return
+# --- Champs de saisie ---
+tk.Label(root, text="Nombre de chambres :").pack(pady=5)
+entry_chambres = tk.Entry(root)
+entry_chambres.pack(pady=5)
 
-        chambres_par_interim = chambres_restantes / nb_interim
+tk.Label(root, text="Femmes de ménage :").pack(pady=5)
+entry_femmes = tk.Entry(root)
+entry_femmes.pack(pady=5)
 
-        print("\nRépartition :\n")
+tk.Label(root, text="Intérimaires :").pack(pady=5)
+entry_interim = tk.Entry(root)
+entry_interim.pack(pady=5)
 
-        for i in range(nb_femmes):
-            duree = max_chambres_femme * duree_chambre
-            print(f"Femme de ménage {i+1} : {max_chambres_femme} chambres ({duree:.1f} h)")
+# --- Bouton ---
+btn = tk.Button(root, text="Calculer la répartition", command=calculer, bg="lightblue")
+btn.pack(pady=10)
 
-        print("\nIntérimaires :")
-        for i in range(nb_interim):
-            duree = chambres_par_interim * duree_chambre
-            print(f"Intérimaire {i+1} : {chambres_par_interim:.1f} chambres ({duree:.1f} h)")
+# --- Zone de texte ---
+text_result = tk.Text(root, width=45, height=15)
+text_result.pack(pady=10)
 
-    print("\n✅ Répartition terminée.")
-
-
-# --- Lancer le programme ---
-if __name__ == "__main__":
-    room_distribution()
+# --- Lancer la fenêtre ---
+root.mainloop()
