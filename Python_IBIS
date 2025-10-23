@@ -1,16 +1,24 @@
-import tkinter as tk
-from tkinter import messagebox
+# Si besoin, installe ipywidgets (souvent déjà installé dans Carnets)
+# !pip install ipywidgets
 
-def calculer():
-    try:
-        nb_chambres = int(entry_chambres.get())
-        nb_femmes = int(entry_femmes.get())
-        nb_interim = int(entry_interim.get())
+from ipywidgets import interact_manual, IntText, Output, VBox
+from IPython.display import display, clear_output
 
-        duree_chambre = 0.5
-        max_chambres_femme = 14
+duree_chambre = 0.5
+max_chambres_femme = 14
+
+output = Output()
+
+def calcul_repartition(nb_chambres, nb_femmes, nb_interim):
+    with output:
+        clear_output()
+        if nb_femmes == 0:
+            print("Il faut au moins une femme de ménage !")
+            return
+        if nb_interim == 0:
+            nb_interim = 1  # éviter division par 0
+
         total_femmes = nb_femmes * max_chambres_femme
-
         resultat = ""
 
         if total_femmes >= nb_chambres:
@@ -29,37 +37,20 @@ def calculer():
             for i in range(nb_interim):
                 resultat += f"Intérimaire {i+1}: {chambres_par_interim:.1f} chambres ({chambres_par_interim * duree_chambre:.1f} h)\n"
 
-        text_result.delete(1.0, tk.END)
-        text_result.insert(tk.END, resultat)
+        print(resultat)
 
-    except ValueError:
-        messagebox.showerror("Erreur", "Veuillez entrer des nombres valides.")
+# Création des widgets
+nb_chambres_widget = IntText(value=50, description='Chambres :')
+nb_femmes_widget = IntText(value=5, description='Femmes :')
+nb_interim_widget = IntText(value=2, description='Intérim :')
 
-# --- Fenêtre principale ---
-root = tk.Tk()
-root.title("Répartition des chambres")
-root.geometry("380x450")
+def on_button_clicked(*args):
+    calcul_repartition(nb_chambres_widget.value, nb_femmes_widget.value, nb_interim_widget.value)
 
-# --- Champs de saisie ---
-tk.Label(root, text="Nombre de chambres :").pack(pady=5)
-entry_chambres = tk.Entry(root)
-entry_chambres.pack(pady=5)
+# Widget interactif avec bouton "Calculer"
+interact_manual(on_button_clicked,
+                nb_chambres=nb_chambres_widget,
+                nb_femmes=nb_femmes_widget,
+                nb_interim=nb_interim_widget)
 
-tk.Label(root, text="Femmes de ménage :").pack(pady=5)
-entry_femmes = tk.Entry(root)
-entry_femmes.pack(pady=5)
-
-tk.Label(root, text="Intérimaires :").pack(pady=5)
-entry_interim = tk.Entry(root)
-entry_interim.pack(pady=5)
-
-# --- Bouton ---
-btn = tk.Button(root, text="Calculer la répartition", command=calculer, bg="lightblue")
-btn.pack(pady=10)
-
-# --- Zone de texte ---
-text_result = tk.Text(root, width=45, height=15)
-text_result.pack(pady=10)
-
-# --- Lancer la fenêtre ---
-root.mainloop()
+display(output)
